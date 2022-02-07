@@ -33,7 +33,7 @@ type getoptConfig struct {
 	optmap           map[rune]int
 }
 
-func Expand(args []string, options string) ([]Option, error) {
+func Tokenize(args []string, options string) ([]Option, error) {
 	if cfg, err := newGetoptConfig(options); err != nil {
 		return nil, err
 	} else {

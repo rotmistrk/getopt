@@ -1,21 +1,57 @@
 # go-getopt
+## SYMOPSIS
+
+### Tokenizer
+
+```go
+getopt.Tokenize(os.Args(), "hVi:o:f::p") ([]getopt.Option,error)
+```
+
+### Parser
+
+```go
+opts := getopt.New().WithDefaults("MyProg","v1.0","Usage: [opts] [file...]", ...)
+nums := opts.IntList('n', "--num", "number of iterations")
+...
+positional, err := opts.Parse(os.Args, true)
+```
+### Marshaller
+
+```go
+type myStruct struct {
+    Names []string  `flag:"n,names" help:"name (may be repeated"`
+    Show func (arg string) error `flas:"S,show" help:"show status for arg"`
+    ...
+}
+
+ms := myStruct{}
+opts := getopt.New().WithDefaults("MyProg","v1.0","Usage: [opts] [file...]", ...)
+positional, err := opts.Marshal(&ms, os.Args, true)
+```
+
+## DESCRIPTION
 
 One more getopt implementation for golang.
 
 - tokenizer supports standard getopt specifications string, including modes of:
   - posixly correct
   - parse positionals as arguments
-  - don't trport errors to stderr
+  - suppress error reporting to stderr
+  - allows flag concatenations (like ls -alt or tail -n100)
 - high-level option configuration 
   - follows POSIX standard to print help or version to STDOUT
   - gives more flexibility on what to pring in help
+  - requires two dashes and = for long options 
+- high level struct marshalling
+  - list support
+  - callback function support
 
 ## USAGE
 
 ### As tokenizer
 
 ````
-  if opts, err := getopt.Expand(os.Args(), "hVi:o:f::p") ; err == nil {
+  if opts, err := getopt.Tokenize(os.Args(), "hVi:o:f::p") ; err == nil {
     for opt := range opts {
       switch opt.Opt {
         case "-h": help()
@@ -30,18 +66,21 @@ where opt is []interface{Opt() string, Arg() *string}
 
 Opt contains option in form "-l" or "-x" (even if merged form of "-lx" 
 was used in argument list).  Arg may be nil for flags.  For positional
-arguments opt is empty.  Long options are reported as positional parameters
+arguments opt is empty.  
+
+Long options are reported as positional parameters
 (same as regular getopt would behave).
 
 ### Rich form
 
 ````
-  opts := getopt.NewOptSet()
-  opts.AddDefaults("myProg", "v1.0", []string{"the description"})
+  opts := getopt.New().WithDefaults("MyProg","v1.0","Usage: [opts] [file...]", ...)
   opts.SetErrorHandler(...)
+  
   input, _ := opts.StringValue('i', "--input", true, "Input file name")
   output, _ := opts.StringDefault('o', "--output", "/dev/stdout", "Output file name")
   dbs, _ := opts.StringList('d', "--db", "List of databases to query")
+  
   if (args, err := opts.Parse(os.Args(), false); err == nil {
       if opts.Done() {
           os.Exit(0) // There was help or version used - EX_OK
@@ -55,20 +94,31 @@ arguments opt is empty.  Long options are reported as positional parameters
   ...
 ````
 
+Highlights
+- AddDefaults adds -h, -V, --help, and --version flags
+  - Help is auto-generated, uses description provided as header
+  - Help and Version are reported to stdout
+- check opts.Done() to exit on errors or Help/Version request
+
 Supported following configurators: 
  - ArgFunc(flag rune, longopt string, action func(string) error, help string) error 
  - FlagFunc(opt rune, longopt string, action func() error, help string) error
  - Flag(opt rune, longopt, help []string) (*bool, error)
- - <type>Value(opt rune, longopt string, required bool, help []string) (*<type>, error)
- - <type>Default(opt rune, longopt string, defaultValue <type>, help []string) (*<type>, error)
- - <type>List(opt rune, longopt string, help []string) (*[]<type>, error)
+ - &lt;type>Value(opt rune, longopt string, required bool, help []string) (*&lt;type>, error)
+ - &lt;type>Default(opt rune, longopt string, defaultValue &lt;type>, help []string) (*&lt;type>, error)
+ - &lt;type>List(opt rune, longopt string, help []string) (*[]&lt;type>, error)
 
 Where <type> is one of:
-  - String
-  - Int
-  - Uint
-  - Float
-  - Bool
+  - String  // *string or *[]string
+  - Int     // *int64 or *[]int64
+  - Uint    // *uint64 or *[]uint64
+  - Float   // *float64 or *[]float64
+  - Bool    // *bool 
+  
+Each function also has variant 
+  - &lt;type>&lt;variant>V(flags[]rune, longopts[]string, ...)
+to allow synonyms; for example
+  - StringListV(flags[]rune, longopts[]string, help string) (*[]string, error)
 
 For unsigned integers, input format supports 
  - decimals, 
@@ -78,6 +128,42 @@ For unsigned integers, input format supports
  - base32 /0t[0-9A-Va-v]*/,
  - base64 /0s[0-9a-zA-Z/+]={0,2}/.
 
-Iht, Uint, and Float values are parsed as 64bit.
+
+### Marshaller
+
+For a struct passes by pointer, for public fields that have annotation "flag",
+sets up parser with all short and long flahs.  One-letter become short, rest
+become long. Bool are flags only (no args supported).
+
+Supports same types plus:
+  - int
+  - uint
+  - float32
+  - time.Time // in RFC3339
+  - time.Duration
+  - func () error // flag callback, has to be not nil
+  - func (val string) error // flag with arg callback, has to be not nil
+
+Example:
+
+```go
+type testMarshal struct {
+    Flag      bool            `flag:"b,boolean" help:"boolean value"`
+    Str       string          `flag:"s,str" help:"string value"`
+    StrList   []string        `flag:"S,str-list" help:"string list"`
+    Int       int64           `flag:"i,int-val" help:"integer value"`
+    IntList   []int64         `flag:"I,int-list" help:"integer list"`
+    Uint      uint64          `flag:"u,uint-val" help:"unsigned int value"`
+    UintList  []uint64        `flag:"U,uint-list" help:"unsigned int list"`
+    Float     float64         `flag:"f,float-val" help:"float value"`
+    FloatList []float64       `flag:"F,float-list" help:"float list"`
+    Wait      time.Duration   `flag:"d,duration-val" help:"duration value"`
+    WaitList  []time.Duration `flag:"D,duration-list" help:"duration list"`
+    Exec      func (cmd string) error `flag:"x,exec" help:"exec cmd"`
+    Flush     func () error    `flag:"z,flush" help:"flush state"`
+}
+```
+
+Does not support "required" flags.
 
 # EOF

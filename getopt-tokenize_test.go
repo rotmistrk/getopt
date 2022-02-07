@@ -9,7 +9,7 @@ func mkstr(str string) *string {
 	return &str
 }
 
-func TestExpand(t *testing.T) {
+func TestTokenize(t *testing.T) {
 	type args struct {
 		args    []string
 		options string
@@ -112,13 +112,13 @@ func TestExpand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Expand(tt.args.args, tt.args.options)
+			got, err := Tokenize(tt.args.args, tt.args.options)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Expand() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Tokenize() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Expand() got/want =\n %v\n %v", got, tt.want)
+				t.Errorf("Tokenize() got/want =\n %v\n %v", got, tt.want)
 			}
 		})
 	}
