@@ -1,4 +1,4 @@
-# go-getopt
+# getopt
 ## SYMOPSIS
 
 ### Tokenizer
