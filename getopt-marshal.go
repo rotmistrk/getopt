@@ -58,6 +58,16 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 					fieldValue.Set(reflect.ValueOf(value))
 					return nil
 				}, help)
+			case map[string]string:
+				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+					strvec := strings.Split(strval, ":")
+					if value == nil {
+						value = make(map[string]string)
+					}
+					value[strvec[0]] = strings.Join(strvec[1:], ":")
+					fieldValue.Set(reflect.ValueOf(value))
+					return nil
+				}, help)
 			case uint64:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					value, err := strconv.ParseUint(strval, 0, 64)

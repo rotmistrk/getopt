@@ -7,17 +7,18 @@ import (
 )
 
 type testMarshal struct {
-	Flag      bool            `flag:"b,boolean" help:"boolean value"`
-	Str       string          `flag:"s,str" help:"string value"`
-	StrList   []string        `flag:"S,str-list" help:"string list"`
-	Int       int64           `flag:"i,int-val" help:"integer value"`
-	IntList   []int64         `flag:"I,int-list" help:"integer list"`
-	Uint      uint64          `flag:"u,uint-val" help:"unsigned int value"`
-	UintList  []uint64        `flag:"U,uint-list" help:"unsigned int list"`
-	Float     float64         `flag:"f,float-val" help:"float value"`
-	FloatList []float64       `flag:"F,float-list" help:"float list"`
-	Wait      time.Duration   `flag:"d,duration-val" help:"duration value"`
-	WaitList  []time.Duration `flag:"D,duration-list" help:"duration list"`
+	Flag      bool              `flag:"b,boolean" help:"boolean value"`
+	Str       string            `flag:"s,str" help:"string value"`
+	StrList   []string          `flag:"S,str-list" help:"string list"`
+	StrMap    map[string]string `flag:"M,str-map" help:"string map"`
+	Int       int64             `flag:"i,int-val" help:"integer value"`
+	IntList   []int64           `flag:"I,int-list" help:"integer list"`
+	Uint      uint64            `flag:"u,uint-val" help:"unsigned int value"`
+	UintList  []uint64          `flag:"U,uint-list" help:"unsigned int list"`
+	Float     float64           `flag:"f,float-val" help:"float value"`
+	FloatList []float64         `flag:"F,float-list" help:"float list"`
+	Wait      time.Duration     `flag:"d,duration-val" help:"duration value"`
+	WaitList  []time.Duration   `flag:"D,duration-list" help:"duration list"`
 }
 
 func TestGetOpt_Marshal(t *testing.T) {
@@ -60,6 +61,7 @@ func TestGetOpt_Marshal(t *testing.T) {
 					"-b",
 					"-sstr",
 					"-Sone", "-S", "two", "--str-list=three",
+					"-Mleft:right", "-M", "top:bottom", "--str-map=far:close",
 					"-i-1",
 					"-I-2", "-I", "3", "--int-list=4",
 					"-u0x10",
@@ -76,6 +78,7 @@ func TestGetOpt_Marshal(t *testing.T) {
 				Flag:      true,
 				Str:       "str",
 				StrList:   []string{"one", "two", "three"},
+				StrMap:    map[string]string{"left": "right", "top": "bottom", "far": "close"},
 				Int:       -1,
 				IntList:   []int64{-2, 3, 4},
 				Uint:      16,
