@@ -152,19 +152,20 @@ Example:
 
 ```go
 type testMarshal struct {
-Flag      bool              `flag:"b,boolean" help:"boolean value"`
-Str       string            `flag:"s,str" help:"string value"`
-StrList   []string          `flag:"S,str-list" help:"string list"`
-StrMap    map[string]string `flag:"M,str-map" help:"string map"`
-Int       int64             `flag:"i,int-val" help:"integer value"`
-IntList   []int64           `flag:"I,int-list" help:"integer list"`
-Uint      uint64            `flag:"u,uint-val" help:"unsigned int value"`
-UintList  []uint64          `flag:"U,uint-list" help:"unsigned int list"`
-Float     float64           `flag:"f,float-val" help:"float value"`
-FloatList []float64         `flag:"F,float-list" help:"float list"`
-Wait      time.Duration     `flag:"d,duration-val" help:"duration value"`
-WaitList  []time.Duration   `flag:"D,duration-list" help:"duration list"`    Exec      func (cmd string) error `flag:"x,exec" help:"exec cmd"`
-    Flush     func () error    `flag:"z,flush" help:"flush state"`
+    Flag      bool              `flag:"b,boolean" help:"boolean value"`
+    Str       string            `flag:"s,str" help:"string value"`
+    StrList   []string          `flag:"S,str-list" help:"string list"`
+    StrMap    map[string]string `flag:"M,str-map" help:"string map"`
+    Int       int64             `flag:"i,int-val" help:"integer value"`
+    IntList   []int64           `flag:"I,int-list" help:"integer list"`
+    Uint      uint64            `flag:"u,uint-val" help:"unsigned int value"`
+    UintList  []uint64          `flag:"U,uint-list" help:"unsigned int list"`
+    Float     float64           `flag:"f,float-val" help:"float value"`
+    FloatList []float64         `flag:"F,float-list" help:"float list"`
+    Wait      time.Duration     `flag:"d,duration-val" help:"duration value"`
+    WaitList  []time.Duration   `flag:"D,duration-list" help:"duration list"`    
+    Exec      func (cmd string) error `flag:"x,exec" help:"exec cmd"`
+    Flush     func () error     `flag:"z,flush" help:"flush state"`
 }
 ```
 
