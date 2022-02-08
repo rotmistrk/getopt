@@ -54,11 +54,7 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 				}, help)
 			case []string:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
-					if fieldValue.Interface() == nil {
-						value = make([]string, 0)
-					} else {
-						value = append(value, strval)
-					}
+					value = append(value, strval)
 					fieldValue.Set(reflect.ValueOf(value))
 					return nil
 				}, help)
@@ -73,12 +69,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []uint64:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseUint(strval, 0, 64)
-					if fieldValue.Interface() == nil {
-						value = make([]uint64, 0)
-					} else {
+					if err == nil {
 						value = append(value, val)
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case uint:
@@ -92,12 +86,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []uint:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseUint(strval, 0, 32)
-					if fieldValue.Interface() == nil {
-						value = make([]uint, 0)
-					} else {
+					if err == nil {
 						value = append(value, uint(val))
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case int64:
@@ -111,12 +103,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []int64:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseInt(strval, 0, 64)
-					if fieldValue.Interface() == nil {
-						value = make([]int64, 0)
-					} else {
+					if err == nil {
 						value = append(value, val)
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case int:
@@ -130,12 +120,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []int:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseInt(strval, 0, 32)
-					if fieldValue.Interface() == nil {
-						value = make([]int, 0)
-					} else {
+					if err == nil {
 						value = append(value, int(val))
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case bool:
@@ -154,12 +142,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []float64:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseFloat(strval, 64)
-					if fieldValue.Interface() == nil {
-						value = make([]float64, 0)
-					} else {
+					if err == nil {
 						value = append(value, val)
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case float32:
@@ -173,12 +159,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []float32:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := strconv.ParseFloat(strval, 32)
-					if fieldValue.Interface() == nil {
-						value = make([]float32, 0)
-					} else {
+					if err == nil {
 						value = append(value, float32(val))
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case time.Time:
@@ -192,12 +176,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []time.Time:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := time.Parse(time.RFC3339, strval)
-					if fieldValue.Interface() == nil {
-						value = make([]time.Time, 0)
-					} else {
+					if err == nil {
 						value = append(value, val)
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			case time.Duration:
@@ -211,12 +193,10 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 			case []time.Duration:
 				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
 					val, err := time.ParseDuration(strval)
-					if fieldValue.Interface() == nil {
-						value = make([]time.Duration, 0)
-					} else {
+					if err == nil {
 						value = append(value, val)
+						fieldValue.Set(reflect.ValueOf(value))
 					}
-					fieldValue.Set(reflect.ValueOf(value))
 					return err
 				}, help)
 			default:

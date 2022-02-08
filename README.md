@@ -135,7 +135,7 @@ For a struct passes by pointer, for public fields that have annotation "flag",
 sets up parser with all short and long flahs.  One-letter become short, rest
 become long. Bool are flags only (no args supported).
 
-Supports same types plus:
+Supports same types as rich form does, plus:
   - int
   - uint
   - float32
