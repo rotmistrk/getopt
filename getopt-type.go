@@ -190,11 +190,11 @@ func (opts *GetOpt) Help() error {
 		arg := opt.argType
 		nl := ""
 		for _, f := range opt.longOpts {
-			fmt.Printf("%s\t--%s\t%s", nl, f, arg)
+			fmt.Printf("%s\t%s=%s", nl, f, arg)
 			nl = "\n"
 		}
 		for _, f := range opt.posixOpts {
-			fmt.Printf("%s\t-%c\t%s", nl, f, arg)
+			fmt.Printf("%s\t-%c %s", nl, f, arg)
 			nl = "\n"
 		}
 		fmt.Print("\t")
