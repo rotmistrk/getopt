@@ -21,9 +21,9 @@ positional, err := opts.Parse(os.Args, true)
 
 ```go
 type myStruct struct {
-Names []string  `flag:"n,names" help:"name (may be repeated"`
-Show func (arg string) error `flas:"S,show" help:"show status for arg"`
-...
+    Names []string  `flag:"n,names" help:"name (may be repeated"`
+    Show func (arg string) error `flas:"S,show" help:"show status for arg"`
+    ...
 }
 
 ms := myStruct{}
@@ -47,6 +47,8 @@ One more getopt implementation for golang.
 - high level struct marshalling
     - list support
     - callback function support
+    - defaults support
+    - initialization from environment variables support
 
 ## USAGE
 
@@ -176,6 +178,23 @@ type testMarshal struct {
     Show      func() error       `flag:"show" help:"show stats"`
 }
 ```
+
+Additionally, one can specify "default" and "env" tags.
+
+- default will take the string value and marshal it before parsing command line.
+- env will resolve OS environment variable by name, and if found, use the value as default.
+  - when both are used, env, if found, takes precedence
+  - for boolean values, "true" or "false" value is expected in default or as environment variable name
+
+```golang
+type mytype struct {
+    Bool      bool       `vlag:"b,bool-val" help:"my boolean" env:"MY_BOOL"`
+    Int       int64      `flag:"i,int-val" help:"integer value" default:"11" env:"MY_INT_VALUE"`
+}
+
+```
+
+Besides, structure may be initialized before parsing (in this case, annotatijons take precedence)
 
 All arguments are treated as optional.  
 Fields initialized prior to call are not changed if flag did not appear in command line.

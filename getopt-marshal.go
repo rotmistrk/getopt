@@ -2,6 +2,7 @@ package getopt
 
 import (
 	"errors"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -35,24 +36,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 				continue
 			}
 			var err error
+			var callback func(string) error
+			var trigger func() error
 			switch value := fieldValue.Interface().(type) {
 			case func() error:
-				err = opts.FlagFuncV(flags, longopts, value, help)
+				trigger = value
 			case func(str string) error:
-				err = opts.ArgFuncV(flags, longopts, value, help)
+				callback = value
 			case string:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					fieldValue.Set(reflect.ValueOf(strval))
 					return nil
-				}, help)
+				}
 			case []string:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value = append(value, strval)
 					fieldValue.Set(reflect.ValueOf(value))
 					return nil
-				}, help)
+				}
 			case map[string]string:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, val := getKeyValue(strval)
 					if value == nil {
 						value = make(map[string]string)
@@ -60,26 +63,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 					value[key] = val
 					fieldValue.Set(reflect.ValueOf(value))
 					return nil
-				}, help)
+				}
 			case uint64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseUint(strval, 0, 64)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case []uint64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseUint(strval, 0, 64)
 					if err == nil {
 						value = append(value, val)
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]uint64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseUint(sval, 0, 64); err != nil {
 						return err
@@ -91,26 +94,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case uint:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseUint(strval, 0, 32)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(uint(value)))
 					}
 					return err
-				}, help)
+				}
 			case []uint:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseUint(strval, 0, 32)
 					if err == nil {
 						value = append(value, uint(val))
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]uint:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseUint(sval, 0, 32); err != nil {
 						return err
@@ -122,26 +125,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case int64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseInt(strval, 0, 64)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case []int64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseInt(strval, 0, 64)
 					if err == nil {
 						value = append(value, val)
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]int64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseInt(sval, 0, 64); err != nil {
 						return err
@@ -153,26 +156,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case int:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseInt(strval, 0, 32)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(int(value)))
 					}
 					return err
-				}, help)
+				}
 			case []int:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseInt(strval, 0, 32)
 					if err == nil {
 						value = append(value, int(val))
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]int:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseInt(sval, 0, 32); err != nil {
 						return err
@@ -184,31 +187,31 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case bool:
 				err = opts.FlagFuncV(flags, longopts, func() error {
 					fieldValue.Set(reflect.ValueOf(true))
 					return nil
 				}, help)
 			case float64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseFloat(strval, 64)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case []float64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseFloat(strval, 64)
 					if err == nil {
 						value = append(value, val)
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]float64:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseFloat(sval, 64); err != nil {
 						return err
@@ -220,26 +223,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case float32:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := strconv.ParseFloat(strval, 32)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(float32(value)))
 					}
 					return err
-				}, help)
+				}
 			case []float32:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := strconv.ParseFloat(strval, 32)
 					if err == nil {
 						value = append(value, float32(val))
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]float32:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := strconv.ParseFloat(sval, 32); err != nil {
 						return err
@@ -251,26 +254,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case time.Time:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := time.Parse(time.RFC3339, strval)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case []time.Time:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := time.Parse(time.RFC3339, strval)
 					if err == nil {
 						value = append(value, val)
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]time.Time:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := time.Parse(time.RFC3339, sval); err != nil {
 						return err
@@ -282,26 +285,26 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			case time.Duration:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					value, err := time.ParseDuration(strval)
 					if err == nil {
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case []time.Duration:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					val, err := time.ParseDuration(strval)
 					if err == nil {
 						value = append(value, val)
 						fieldValue.Set(reflect.ValueOf(value))
 					}
 					return err
-				}, help)
+				}
 			case map[string]time.Duration:
-				err = opts.ArgFuncV(flags, longopts, func(strval string) error {
+				callback = func(strval string) error {
 					key, sval := getKeyValue(strval)
 					if val, err := time.ParseDuration(sval); err != nil {
 						return err
@@ -313,9 +316,44 @@ func (opts *GetOpt) Marshal(target interface{}, argv []string, posix bool) ([]st
 						fieldValue.Set(reflect.ValueOf(value))
 						return nil
 					}
-				}, help)
+				}
 			default:
 				return nil, errors.New("unsupported type " + fieldType.Type.Kind().String() + " for " + fieldType.Name)
+			}
+			if callback != nil {
+				err = opts.ArgFuncV(flags, longopts, callback, help)
+				if err == nil {
+					var val *string
+					if found, ok := fieldType.Tag.Lookup("default"); ok {
+						val = &found
+					}
+					if found, ok := fieldType.Tag.Lookup("env"); ok {
+						if found, ok := os.LookupEnv(found); ok {
+							val = &found
+						}
+					}
+					if val != nil {
+						err = callback(*val)
+					}
+				}
+			} else if trigger != nil {
+				err = opts.FlagFuncV(flags, longopts, trigger, help)
+				if err == nil {
+					var val bool
+					if found, ok := fieldType.Tag.Lookup("default"); ok {
+						val, err = strconv.ParseBool(found)
+					}
+					if err == nil {
+						if found, ok := fieldType.Tag.Lookup("env"); ok {
+							if found, ok := os.LookupEnv(found); ok {
+								val, err = strconv.ParseBool(found)
+							}
+						}
+					}
+					if err == nil && val {
+						trigger()
+					}
+				}
 			}
 			if err != nil {
 				opts.done = true
