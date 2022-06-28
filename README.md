@@ -15,6 +15,12 @@ opts := getopt.New().WithDefaults("MyProg", "v1.0", "Usage: [opts] [file...]", .
 nums := opts.IntList('n', "--num", "number of iterations")
 ...
 positional, err := opts.Parse(os.Args, true)
+if err != nil {
+    os.Exit(64) // There were errors - return EX_USAGE
+}
+if opts.Done() {
+    os.Exit(0) // There was help or version - return success
+}
 ```
 
 ### Marshaller
@@ -29,6 +35,12 @@ type myStruct struct {
 ms := myStruct{}
 opts := getopt.New().WithDefaults("MyProg", "v1.0", "Usage: [opts] [file...]", ...)
 positional, err := opts.Marshal(&ms, os.Args, true)
+if err != nil {
+    os.Exit(64) // There were errors - return EX_USAGE
+}
+if opts.Done() {
+    os.Exit(0) // There was help or version - return success
+}
 ```
 
 ## DESCRIPTION
