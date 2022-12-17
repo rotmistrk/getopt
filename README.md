@@ -71,7 +71,7 @@ One more getopt implementation for golang.
     for opt := range opts {
       switch opt.Opt {
         case "-h": help()
-        case "-i": parseInpot(opt.Arg())
+        case "-i": parseInput(opt.Arg())
         ...
       }
     }
