@@ -1,6 +1,6 @@
 # getopt
 
-## SYMOPSIS
+## SYNOPSIS
 
 ### Tokenizer
 
@@ -28,7 +28,7 @@ if opts.Done() {
 ```go
 type myStruct struct {
     Names []string  `flag:"n,names" help:"name (may be repeated"`
-    Show func (arg string) error `flas:"S,show" help:"show status for arg"`
+    Show func (arg string) error `flag:"S,show" help:"show status for arg"`
     ...
 }
 
@@ -54,7 +54,7 @@ One more getopt implementation for golang.
     - allows flag concatenations (like ls -alt or tail -n100)
 - high-level option configuration
     - follows POSIX standard to print help or version to STDOUT
-    - gives more flexibility on what to pring in help
+    - gives more flexibility on what to print in help
     - requires two dashes and = for long options
 - high level struct marshalling
     - list support
@@ -151,7 +151,7 @@ For unsigned integers, input format supports
 ### Marshaller
 
 For a struct passes by pointer, for public fields that have annotation "flag", sets up parser with all short and long
-flahs. One-letter become short, rest become long. Bool are flags only (no args supported).
+flags. One-letter become short, rest become long. Bool are flags only (no args supported).
 
 Supports same types as rich form does, plus:
 
@@ -200,13 +200,13 @@ Additionally, one can specify "default" and "env" tags.
 
 ```golang
 type mytype struct {
-    Bool      bool       `vlag:"b,bool-val" help:"my boolean" env:"MY_BOOL"`
+    Bool      bool       `flag:"b,bool-val" help:"my boolean" env:"MY_BOOL"`
     Int       int64      `flag:"i,int-val" help:"integer value" default:"11" env:"MY_INT_VALUE"`
 }
 
 ```
 
-Besides, structure may be initialized before parsing (in this case, annotatijons take precedence)
+Besides, structure may be initialized before parsing (in this case, annotations take precedence)
 
 All arguments are treated as optional.  
 Fields initialized prior to call are not changed if flag did not appear in command line.
